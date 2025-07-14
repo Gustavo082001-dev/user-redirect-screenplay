@@ -30,10 +30,18 @@ const Login = () => {
 
     // Simula delay de autenticação
     setTimeout(() => {
-      toast({
-        title: "Login realizado com sucesso!",
-        description: "Login efetuado com sucesso.",
-      });
+      if (usuario.toLowerCase().includes("solicitante") || usuario.toLowerCase().includes("user")) {
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Redirecionando para abertura de chamados...",
+        });
+        navigate("/solicitante");
+      } else {
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Login efetuado com sucesso.",
+        });
+      }
       setIsLoading(false);
     }, 1500);
   };
