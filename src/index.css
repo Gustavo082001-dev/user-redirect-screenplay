@@ -2,13 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Sistema de design moderno para aplicação de chamados */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 210 30% 98%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -17,24 +15,43 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Sistema de cores principal - azul corporativo moderno */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 217 91% 55%;
+    --primary-light: 217 91% 85%;
 
-    --secondary: 210 40% 96.1%;
+    /* Cores secundárias - cinza elegante */
+    --secondary: 215 20% 95%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 215 20% 95%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 217 91% 95%;
+    --accent-foreground: 217 91% 25%;
 
+    /* Status colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+
+    /* Gradientes */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%));
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(220 100% 75%) 50%, hsl(230 80% 80%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 20% 98%) 100%);
+
+    /* Sombras elegantes */
+    --shadow-soft: 0 4px 20px -2px hsl(217 91% 60% / 0.1);
+    --shadow-medium: 0 8px 30px -5px hsl(217 91% 60% / 0.15);
+    --shadow-strong: 0 20px 60px -10px hsl(217 91% 60% / 0.25);
 
     --radius: 0.5rem;
 

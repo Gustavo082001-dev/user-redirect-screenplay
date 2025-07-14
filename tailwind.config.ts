@@ -26,7 +26,9 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					hover: 'hsl(var(--primary-hover))',
+					light: 'hsl(var(--primary-light))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -52,6 +54,14 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -67,6 +77,16 @@ export default {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				'soft': '0 4px 20px -2px hsl(217 91% 60% / 0.1)',
+				'medium': '0 8px 30px -5px hsl(217 91% 60% / 0.15)',
+				'strong': '0 20px 60px -10px hsl(217 91% 60% / 0.25)'
+			},
+			backgroundImage: {
+				'gradient-primary': 'linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))',
+				'gradient-hero': 'linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(220 100% 75%) 50%, hsl(230 80% 80%) 100%)',
+				'gradient-card': 'linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 20% 98%) 100%)'
 			},
 			keyframes: {
 				'accordion-down': {
