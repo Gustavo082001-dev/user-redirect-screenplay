@@ -30,33 +30,10 @@ const Login = () => {
 
     // Simula delay de autenticação
     setTimeout(() => {
-      // Lógica simulada de redirecionamento baseado no tipo de usuário
-      if (usuario.toLowerCase().includes("solicitante") || usuario.toLowerCase().includes("user")) {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Redirecionando para área de abertura de chamados...",
-        });
-        navigate("/solicitante");
-      } else if (usuario.toLowerCase().includes("executor") || usuario.toLowerCase().includes("tecnico")) {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Redirecionando para área de execução de chamados...",
-        });
-        navigate("/executor");
-      } else if (usuario.toLowerCase().includes("admin") || usuario.toLowerCase().includes("administrador")) {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Redirecionando para painel administrativo...",
-        });
-        navigate("/admin");
-      } else {
-        // Default para solicitante
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Redirecionando para área de abertura de chamados...",
-        });
-        navigate("/solicitante");
-      }
+      toast({
+        title: "Login realizado com sucesso!",
+        description: "Login efetuado com sucesso.",
+      });
       setIsLoading(false);
     }, 1500);
   };
