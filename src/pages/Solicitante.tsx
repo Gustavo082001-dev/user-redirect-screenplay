@@ -83,37 +83,49 @@ const Solicitante = () => {
 
               {/* Local de Origem */}
               <div className="space-y-2">
-                <Label htmlFor="localOrigem" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
                   Local de Origem
                 </Label>
-                <Input
-                  id="localOrigem"
-                  {...register("localOrigemm", { required: "Local de origem é obrigatório" })}
-                  placeholder="Ex: UTI, Quarto 201, Pronto Socorro"
-                  className="h-11 shadow-soft border-border/50 focus:border-primary focus:shadow-medium transition-all duration-200"
-                  disabled={isLoading}
-                />
+                <Select onValueChange={(value) => setValue("localOrigemm", value)} disabled={isLoading}>
+                  <SelectTrigger className="h-11 shadow-soft border-border/50 focus:border-primary focus:shadow-medium transition-all duration-200">
+                    <SelectValue placeholder="Selecione o local de origem" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border shadow-strong z-50">
+                    <SelectItem value="uti">UTI</SelectItem>
+                    <SelectItem value="pronto-socorro">Pronto Socorro</SelectItem>
+                    <SelectItem value="enfermaria">Enfermaria</SelectItem>
+                    <SelectItem value="quarto-101">Quarto 101</SelectItem>
+                    <SelectItem value="quarto-201">Quarto 201</SelectItem>
+                    <SelectItem value="quarto-301">Quarto 301</SelectItem>
+                  </SelectContent>
+                </Select>
                 {errors.localOrigemm && (
-                  <p className="text-sm text-destructive">{errors.localOrigemm.message}</p>
+                  <p className="text-sm text-destructive">Local de origem é obrigatório</p>
                 )}
               </div>
 
               {/* Local de Destino */}
               <div className="space-y-2">
-                <Label htmlFor="localDestino" className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Label className="text-sm font-medium text-foreground flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
                   Local de Destino
                 </Label>
-                <Input
-                  id="localDestino"
-                  {...register("localDestino", { required: "Local de destino é obrigatório" })}
-                  placeholder="Ex: Centro Cirúrgico, Radiologia, Enfermaria"
-                  className="h-11 shadow-soft border-border/50 focus:border-primary focus:shadow-medium transition-all duration-200"
-                  disabled={isLoading}
-                />
+                <Select onValueChange={(value) => setValue("localDestino", value)} disabled={isLoading}>
+                  <SelectTrigger className="h-11 shadow-soft border-border/50 focus:border-primary focus:shadow-medium transition-all duration-200">
+                    <SelectValue placeholder="Selecione o local de destino" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border-border shadow-strong z-50">
+                    <SelectItem value="centro-cirurgico">Centro Cirúrgico</SelectItem>
+                    <SelectItem value="radiologia">Radiologia</SelectItem>
+                    <SelectItem value="laboratorio">Laboratório</SelectItem>
+                    <SelectItem value="cardiologia">Cardiologia</SelectItem>
+                    <SelectItem value="neurologia">Neurologia</SelectItem>
+                    <SelectItem value="fisioterapia">Fisioterapia</SelectItem>
+                  </SelectContent>
+                </Select>
                 {errors.localDestino && (
-                  <p className="text-sm text-destructive">{errors.localDestino.message}</p>
+                  <p className="text-sm text-destructive">Local de destino é obrigatório</p>
                 )}
               </div>
 
