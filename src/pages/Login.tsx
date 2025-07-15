@@ -35,7 +35,13 @@ const Login = () => {
           title: "Login realizado com sucesso!",
           description: "Redirecionando para abertura de chamados...",
         });
-        navigate("/solicitante");
+        navigate("/solicitante", { state: { userName: usuario } });
+      } else if (usuario.toLowerCase().includes("executor")) {
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Redirecionando para busca de solicitações...",
+        });
+        navigate("/executor", { state: { userName: usuario } });
       } else {
         toast({
           title: "Login realizado com sucesso!",
