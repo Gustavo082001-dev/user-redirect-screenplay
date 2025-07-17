@@ -40,16 +40,16 @@ const ChamadosPanel = ({ chamados, onNovoChamado, onCancelarChamado, usuarioLoga
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      "Pendente": { variant: "secondary" as const, color: "bg-yellow-500" },
-      "Em Transporte": { variant: "default" as const, color: "bg-blue-500" },
-      "Concluído": { variant: "default" as const, color: "bg-green-500" },
-      "Cancelado": { variant: "destructive" as const, color: "bg-red-500" }
+      "Pendente": "bg-yellow-500 text-white",
+      "Em Transporte": "bg-blue-500 text-white", 
+      "Concluído": "bg-green-500 text-white",
+      "Cancelado": "bg-red-500 text-white"
     };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig["Pendente"];
+    const className = statusConfig[status as keyof typeof statusConfig] || statusConfig["Pendente"];
     
     return (
-      <Badge variant={config.variant} className="text-white">
+      <Badge className={className}>
         {status}
       </Badge>
     );
