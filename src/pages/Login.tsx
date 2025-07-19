@@ -28,32 +28,46 @@ const Login = () => {
 
     setIsLoading(true);
 
-    // Simula delay de autenticação
-    setTimeout(() => {
-      if (usuario.toLowerCase().includes("solicitante") || usuario.toLowerCase().includes("user")) {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Redirecionando para abertura de chamados...",
-        });
-        navigate("/solicitante", { state: { userName: usuario } });
-      } else if (usuario.toLowerCase().includes("executor")) {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Redirecionando para busca de solicitações...",
-        });
-        navigate("/executor", { state: { userName: usuario } });
-      } else {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Login efetuado com sucesso.",
-        });
+    try {
+      const response = await fetch('http://localhost:3001/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ usuario, senha })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao fazer login');
       }
+
+      toast({
+        title: "Login realizado com sucesso!",
+        description: data.userType === 'solicitante' 
+          ? "Redirecionando para abertura de chamados..."
+          : "Redirecionando para busca de solicitações...",
+      });
+
+      if (data.userType === 'solicitante') {
+        navigate("/solicitante", { state: { userName: data.userName } });
+      } else if (data.userType === 'executor') {
+        navigate("/executor", { state: { userName: data.userName } });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro no login",
+        description: error instanceof Error ? error.message : 'Erro ao fazer login',
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-light via-background to-accent flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-light via-background to-secondary-light flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Card className="shadow-strong border-0 bg-gradient-card">
           <CardHeader className="text-center space-y-4">

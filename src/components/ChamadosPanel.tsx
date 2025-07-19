@@ -1,16 +1,42 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { User, MapPin, Bed, Truck, Shield, Clock, X, Plus, FileText } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Input } from './ui/input';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './ui/table';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from './ui/pagination';
+import {
+  User,
+  Clock,
+  Truck,
+  Shield,
+  FileText,
+  Plus,
+  MapPin,
+  Bed,
+  X,
+  Search,
+} from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 
 interface Chamado {
   id: string;
   nomePaciente: string;
-  localOrigemm: string;
+  localOrigem: string; 
   localDestino: string;
   leito: string;
   tipoTransporte: string;
@@ -29,14 +55,27 @@ interface ChamadosPanelProps {
   usuarioLogado: string;
 }
 
-const ChamadosPanel = ({ chamados, onNovoChamado, onCancelarChamado, usuarioLogado }: ChamadosPanelProps) => {
+const ChamadosPanel: React.FC<ChamadosPanelProps> = ({ 
+  chamados: chamadosProps, 
+  onNovoChamado, 
+  onCancelarChamado, 
+  usuarioLogado: usuarioLogadoProps 
+}) => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [paginaAtual, setPaginaAtual] = useState(1);
-  const chamadosPorPagina = 15;
+  const [termoBusca, setTermoBusca] = useState('');
+  const [mostrarBusca, setMostrarBusca] = useState(false);
+  const chamadosPorPagina = 10;
+  
+  // Usar os dados vindos das props em vez do estado local
+  const chamados = chamadosProps || [];
+  const usuarioLogado = usuarioLogadoProps || localStorage.getItem('username') || '';
 
-  const totalPaginas = Math.ceil(chamados.length / chamadosPorPagina);
-  const indiceInicio = (paginaAtual - 1) * chamadosPorPagina;
-  const indiceFim = indiceInicio + chamadosPorPagina;
-  const chamadosPaginados = chamados.slice(indiceInicio, indiceFim);
+  // Atualizar loading quando os chamados chegarem
+  useEffect(() => {
+    setLoading(false);
+  }, [chamados]);
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -81,26 +120,68 @@ const ChamadosPanel = ({ chamados, onNovoChamado, onCancelarChamado, usuarioLoga
     });
   };
 
+  // Filtrar chamados baseado no termo de busca
+  const chamadosFiltrados = chamados.filter(chamado => {
+    const termo = termoBusca.toLowerCase();
+    return (
+      chamado.nomePaciente.toLowerCase().includes(termo) ||
+      chamado.localOrigem.toLowerCase().includes(termo) ||
+      chamado.localDestino.toLowerCase().includes(termo) ||
+      chamado.leito.toLowerCase().includes(termo) ||
+      chamado.tipoTransporte.toLowerCase().includes(termo) ||
+      chamado.solicitante.toLowerCase().includes(termo) ||
+      chamado.status.toLowerCase().includes(termo) ||
+      String(chamado.id).includes(termo)
+    );
+  });
+
+  // Calcular paginação com base nos chamados filtrados
+  const totalPaginas = Math.ceil(chamadosFiltrados.length / chamadosPorPagina);
+  const indiceInicio = (paginaAtual - 1) * chamadosPorPagina;
+  const indiceFim = indiceInicio + chamadosPorPagina;
+  const chamadosPaginados = chamadosFiltrados.slice(indiceInicio, indiceFim);
+
+  // Resetar página quando buscar
+  useEffect(() => {
+    setPaginaAtual(1);
+  }, [termoBusca]);
+
+  // Função para alternar a visibilidade da busca
+  const toggleBusca = () => {
+    setMostrarBusca(!mostrarBusca);
+    if (mostrarBusca) {
+      setTermoBusca(''); // Limpar busca ao fechar
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-light via-background to-accent p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Painel de Chamados</h1>
-            <p className="text-muted-foreground mt-1">
-              Gerencie suas solicitações de transporte de pacientes
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Painel de Chamados
+            </h1>
+            <p className="text-muted-foreground">
+              Gerencie e acompanhe todos os chamados de transporte
             </p>
           </div>
-          <Button 
-            onClick={onNovoChamado}
-            variant="hero"
-            size="lg"
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Criar Novo Chamado
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={toggleBusca} 
+              variant="outline" 
+              size="lg"
+              className="flex items-center gap-2"
+            >
+              <Search className="w-5 h-5" />
+              {mostrarBusca ? 'Fechar Busca' : 'Buscar'}
+            </Button>
+            <Button onClick={onNovoChamado} variant="hero" size="lg">
+              <Plus className="w-5 h-5 mr-2" />
+              Novo Chamado
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -160,6 +241,30 @@ const ChamadosPanel = ({ chamados, onNovoChamado, onCancelarChamado, usuarioLoga
           </Card>
         </div>
 
+        {/* Campo de Busca - Condicional */}
+        {mostrarBusca && (
+          <Card className="shadow-soft">
+            <CardContent className="p-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  type="text"
+                  placeholder="Buscar por paciente, ID, origem, destino, leito, transporte, solicitante ou status..."
+                  value={termoBusca}
+                  onChange={(e) => setTermoBusca(e.target.value)}
+                  className="pl-10"
+                  autoFocus
+                />
+              </div>
+              {termoBusca && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {chamadosFiltrados.length} chamado(s) encontrado(s) para "{termoBusca}"
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Tabela de Chamados */}
         <Card className="shadow-strong">
           <CardHeader>
@@ -169,19 +274,24 @@ const ChamadosPanel = ({ chamados, onNovoChamado, onCancelarChamado, usuarioLoga
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {chamados.length === 0 ? (
+            {chamadosFiltrados.length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-foreground mb-2">
-                  Nenhum chamado encontrado
+                  {termoBusca ? 'Nenhum chamado encontrado' : 'Nenhum chamado encontrado'}
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  Crie seu primeiro chamado para começar a gerenciar transportes
+                  {termoBusca 
+                    ? `Não há chamados que correspondam à busca "${termoBusca}"`
+                    : 'Crie seu primeiro chamado para começar a gerenciar transportes'
+                  }
                 </p>
-                <Button onClick={onNovoChamado} variant="hero">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Criar Primeiro Chamado
-                </Button>
+                {!termoBusca && (
+                  <Button onClick={onNovoChamado} variant="hero">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Criar Primeiro Chamado
+                  </Button>
+                )}
               </div>
             ) : (
               <>
@@ -206,7 +316,7 @@ const ChamadosPanel = ({ chamados, onNovoChamado, onCancelarChamado, usuarioLoga
                       {chamadosPaginados.map((chamado) => (
                         <TableRow key={chamado.id} className="hover:bg-muted/50">
                           <TableCell className="font-mono text-sm">
-                            #{chamado.id.slice(-6)}
+                            #{String(chamado.id).slice(-6)}
                           </TableCell>
                           <TableCell className="font-medium">
                             {chamado.nomePaciente}
@@ -214,7 +324,7 @@ const ChamadosPanel = ({ chamados, onNovoChamado, onCancelarChamado, usuarioLoga
                           <TableCell>
                             <div className="flex items-center gap-1">
                               <MapPin className="w-3 h-3 text-muted-foreground" />
-                              {chamado.localOrigemm}
+                              {chamado.localOrigem} 
                             </div>
                           </TableCell>
                           <TableCell>
@@ -251,7 +361,13 @@ const ChamadosPanel = ({ chamados, onNovoChamado, onCancelarChamado, usuarioLoga
                             {getStatusBadge(chamado.status)}
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground">
-                            {chamado.dataCriacao}
+                            {new Date(chamado.dataCriacao).toLocaleString('pt-BR', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
                           </TableCell>
                           <TableCell className="text-sm">
                             {chamado.solicitante}

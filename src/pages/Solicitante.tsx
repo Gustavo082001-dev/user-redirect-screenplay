@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import ChamadosPanel from "@/components/ChamadosPanel";
 import ChamadoForm from "@/components/ChamadoForm";
@@ -6,7 +6,7 @@ import ChamadoForm from "@/components/ChamadoForm";
 interface Chamado {
   id: string;
   nomePaciente: string;
-  localOrigemm: string;
+  localOrigem: string;
   localDestino: string;
   leito: string;
   tipoTransporte: string;
@@ -23,50 +23,60 @@ const Solicitante = () => {
   const usuarioLogado = location.state?.userName || "Usuário";
   
   const [tela, setTela] = useState<"painel" | "formulario">("painel");
-  const [chamados, setChamados] = useState<Chamado[]>([
-    // Dados de exemplo
-    {
-      id: "1703001234567",
-      nomePaciente: "Maria Santos",
-      localOrigemm: "uti",
-      localDestino: "centro-cirurgico",
-      leito: "15A",
-      tipoTransporte: "maca",
-      precisaPrecaucao: "sim",
-      tipoPrecaucao: "Isolamento por contato",
-      observacoes: "Paciente com mobilidade reduzida",
-      status: "Pendente",
-      dataCriacao: "20/12/2024 14:30",
-      solicitante: usuarioLogado
-    },
-    {
-      id: "1703001234568",
-      nomePaciente: "João Silva",
-      localOrigemm: "enfermaria",
-      localDestino: "radiologia",
-      leito: "203B",
-      tipoTransporte: "cadeira-rodas",
-      precisaPrecaucao: "nao",
-      observacoes: "Exame de rotina",
-      status: "Em Transporte",
-      dataCriacao: "20/12/2024 13:15",
-      solicitante: usuarioLogado
-    },
-    {
-      id: "1703001234569",
-      nomePaciente: "Ana Costa",
-      localOrigemm: "pronto-socorro",
-      localDestino: "laboratorio",
-      leito: "01",
-      tipoTransporte: "maca",
-      precisaPrecaucao: "sim",
-      tipoPrecaucao: "Isolamento respiratório",
-      observacoes: "Urgente - coleta de exames",
-      status: "Concluído",
-      dataCriacao: "20/12/2024 12:00",
-      solicitante: "Dr. Carlos"
+  const [chamados, setChamados] = useState<Chamado[]>([]);
+
+  // Função para carregar os chamados
+  const carregarChamados = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/chamados');
+      const data = await response.json();
+      setChamados(data);
+    } catch (error) {
+      console.error('Erro ao carregar chamados:', error);
     }
-  ]);
+  };
+
+  // Carregar chamados quando o componente montar
+  useEffect(() => {
+    carregarChamados();
+  }, []);
+
+  const handleChamadoCriado = async (novoChamado: Chamado) => {
+    try {
+      const response = await fetch('http://localhost:3001/api/chamados', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(novoChamado),
+      });
+
+      if (response.ok) {
+        carregarChamados(); // Recarrega a lista de chamados
+        setTela("painel");
+      }
+    } catch (error) {
+      console.error('Erro ao criar chamado:', error);
+    }
+  };
+
+  const handleCancelarChamado = async (id: string) => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/chamados/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'Cancelado' }),
+      });
+
+      if (response.ok) {
+        carregarChamados(); // Recarrega a lista de chamados
+      }
+    } catch (error) {
+      console.error('Erro ao cancelar chamado:', error);
+    }
+  };
 
   const handleNovoChamado = () => {
     setTela("formulario");
@@ -74,20 +84,6 @@ const Solicitante = () => {
 
   const handleVoltarPainel = () => {
     setTela("painel");
-  };
-
-  const handleChamadoCriado = (novoChamado: Chamado) => {
-    setChamados(prev => [novoChamado, ...prev]);
-  };
-
-  const handleCancelarChamado = (id: string) => {
-    setChamados(prev => 
-      prev.map(chamado => 
-        chamado.id === id 
-          ? { ...chamado, status: "Cancelado" }
-          : chamado
-      )
-    );
   };
 
   if (tela === "formulario") {

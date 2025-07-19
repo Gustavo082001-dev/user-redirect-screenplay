@@ -12,7 +12,7 @@ import { toast } from "@/hooks/use-toast";
 
 interface FormData {
   nomePaciente: string;
-  localOrigemm: string;
+  localOrigem: string; 
   localDestino: string;
   leito: string;
   tipoTransporte: string;
@@ -36,28 +36,44 @@ const ChamadoForm = ({ onVoltar, onChamadoCriado, usuarioLogado }: ChamadoFormPr
   const handleFormSubmit = async (data: FormData) => {
     setIsLoading(true);
     
-    // Simula envio do chamado
-    setTimeout(() => {
+    try {
       const novoChamado = {
-        id: Date.now().toString(),
         ...data,
         status: "Pendente",
-        dataCriacao: new Date().toLocaleString(),
+        dataCriacao: new Date().toISOString().slice(0, 19).replace('T', ' '), // Formato MySQL DATETIME: YYYY-MM-DD HH:MM:SS
         solicitante: usuarioLogado,
       };
 
-      onChamadoCriado(novoChamado);
-      
-      toast({
-        title: "Chamado criado com sucesso!",
-        description: `Chamado para ${data.nomePaciente} foi registrado e será processado em breve.`,
+      const response = await fetch('http://localhost:3001/api/chamados', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(novoChamado),
       });
-      
-      reset();
-      setPrecisaPrecaucao("");
+
+      if (response.ok) {
+        toast({
+          title: "Chamado criado com sucesso!",
+          description: `Chamado para ${data.nomePaciente} foi registrado e será processado em breve.`,
+        });
+        
+        reset();
+        setPrecisaPrecaucao("");
+        onVoltar();
+      } else {
+        throw new Error('Erro ao criar chamado');
+      }
+    } catch (error) {
+      console.error('Erro ao criar chamado:', error);
+      toast({
+        title: "Erro ao criar chamado",
+        description: "Ocorreu um erro ao tentar criar o chamado. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-      onVoltar();
-    }, 1500);
+    }
   };
 
   return (
@@ -117,7 +133,7 @@ const ChamadoForm = ({ onVoltar, onChamadoCriado, usuarioLogado }: ChamadoFormPr
                   <MapPin className="w-4 h-4" />
                   Local de Origem
                 </Label>
-                <Select onValueChange={(value) => setValue("localOrigemm", value)} disabled={isLoading}>
+                <Select onValueChange={(value) => setValue("localOrigem", value)} disabled={isLoading}>
                   <SelectTrigger className="h-11 shadow-soft border-border/50 focus:border-primary focus:shadow-medium transition-all duration-200">
                     <SelectValue placeholder="Selecione o local de origem" />
                   </SelectTrigger>
@@ -130,7 +146,7 @@ const ChamadoForm = ({ onVoltar, onChamadoCriado, usuarioLogado }: ChamadoFormPr
                     <SelectItem value="quarto-301">Quarto 301</SelectItem>
                   </SelectContent>
                 </Select>
-                {errors.localOrigemm && (
+                {errors.localOrigem && (
                   <p className="text-sm text-destructive">Local de origem é obrigatório</p>
                 )}
               </div>
