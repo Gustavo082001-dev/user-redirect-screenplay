@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -20,6 +21,14 @@ import {
   PaginationPrevious,
 } from './ui/pagination';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import {
   User,
   Clock,
   Truck,
@@ -30,8 +39,12 @@ import {
   Bed,
   X,
   Search,
+  Settings,
+  KeyRound,
+  LogOut,
 } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
+import PasswordChangeModal from './PasswordChangeModal';
 
 interface Chamado {
   id: string;
@@ -53,29 +66,66 @@ interface ChamadosPanelProps {
   onNovoChamado: () => void;
   onCancelarChamado: (id: string) => void;
   usuarioLogado: string;
+  userKey?: string; // Adicionar prop para a chave do usuário
 }
 
 const ChamadosPanel: React.FC<ChamadosPanelProps> = ({ 
   chamados: chamadosProps, 
   onNovoChamado, 
   onCancelarChamado, 
-  usuarioLogado: usuarioLogadoProps 
+  usuarioLogado: usuarioLogadoProps,
+  userKey
 }) => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paginaAtual, setPaginaAtual] = useState(1);
   const [termoBusca, setTermoBusca] = useState('');
   const [mostrarBusca, setMostrarBusca] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const chamadosPorPagina = 10;
   
   // Usar os dados vindos das props em vez do estado local
   const chamados = chamadosProps || [];
   const usuarioLogado = usuarioLogadoProps || localStorage.getItem('username') || '';
+  const chaveUsuario = userKey || localStorage.getItem('username') || usuarioLogado;
+
+  // Função para lidar com alteração de senha
+  const handlePasswordChanged = () => {
+    // Forçar logout após alteração de senha
+    navigate('/', { replace: true });
+  };
 
   // Atualizar loading quando os chamados chegarem
   useEffect(() => {
     setLoading(false);
   }, [chamados]);
+
+  const handleLogout = async () => {
+    try {
+      // Chamar endpoint de logout (opcional)
+      await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.log('Erro no logout:', error);
+    } finally {
+      // Limpar dados do cliente
+      localStorage.removeItem('username');
+      localStorage.removeItem('userType');
+      
+      // Redirecionar para login
+      window.location.href = '/';
+      
+      toast({
+        title: 'Logout realizado',
+        description: 'Você foi desconectado com sucesso.',
+      });
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
@@ -181,6 +231,37 @@ const ChamadosPanel: React.FC<ChamadosPanelProps> = ({
               <Plus className="w-5 h-5 mr-2" />
               Novo Chamado
             </Button>
+            
+            {/* Menu de Perfil do Utilizador */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="lg" className="flex items-center gap-2">
+                  <Settings className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel className="flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  {usuarioLogado}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => setIsPasswordModalOpen(true)}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <KeyRound className="w-4 h-4" />
+                  Alterar Senha
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sair do Sistema
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
@@ -431,6 +512,14 @@ const ChamadosPanel: React.FC<ChamadosPanelProps> = ({
           </CardContent>
         </Card>
       </div>
+      
+      {/* Modal de Alteração de Senha */}
+      <PasswordChangeModal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+        usuarioLogado={userKey || usuarioLogado}
+        onPasswordChanged={handlePasswordChanged}
+      />
     </div>
   );
 };

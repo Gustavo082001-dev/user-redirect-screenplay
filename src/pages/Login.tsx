@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,8 +13,19 @@ const Login = () => {
   const [senha, setSenha] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, userType, login } = useAuth();
 
-  // Simulação de diferentes tipos de usuário baseado no campo usuário
+  // Redirecionar se já estiver autenticado
+  useEffect(() => {
+    if (isAuthenticated && userType) {
+      if (userType === 'solicitante') {
+        navigate('/solicitante', { replace: true });
+      } else if (userType === 'executor') {
+        navigate('/executor', { replace: true });
+      }
+    }
+  }, [isAuthenticated, userType, navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -43,6 +55,9 @@ const Login = () => {
         throw new Error(data.message || 'Erro ao fazer login');
       }
 
+      // Usar o contexto de autenticação
+      login(data.userType, data.userName, usuario);
+
       toast({
         title: "Login realizado com sucesso!",
         description: data.userType === 'solicitante' 
@@ -51,9 +66,9 @@ const Login = () => {
       });
 
       if (data.userType === 'solicitante') {
-        navigate("/solicitante", { state: { userName: data.userName } });
+        navigate("/solicitante", { replace: true });
       } else if (data.userType === 'executor') {
-        navigate("/executor", { state: { userName: data.userName } });
+        navigate("/executor", { replace: true });
       }
     } catch (error) {
       toast({
